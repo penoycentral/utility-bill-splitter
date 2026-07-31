@@ -9,7 +9,7 @@ This workbook is **100% compatible with Google Sheets** and is pre-configured wi
 ## 🚀 Key Features
 
 *   **📅 Date-Driven Billing Cycles**: Fully dynamic headers using the **`DD-MM-YYYY`** date format (e.g., `01-07-2026` to `31-07-2026`). Enter any custom billing cycle start and end dates (e.g., matching your SP Services bill cycle). Non-active day columns automatically gray out and lock (e.g., February 29th–31st).
-*   **💧 PUB Daily Cost-Share**: Rather than splitting bills flatly, PUB is divided by month days, then by occupants, and allocated based on daily presence. Absent days are omitted, ensuring you only pay for days you were in the house.
+*   **💧 PUB Daily Cost-Share**: Rather than splitting bills flatly, PUB is divided by month days, then by occupants present on each day. If no one is present on a given day (e.g. house is empty during holidays), the daily bill for that day is automatically split equally among all listed tenants.
 *   **🌐 Internet Splitting**: Hardcoded to allow cost-sharing specifically for a set number of occupants (e.g., split equally only among the first 3 tenants on the lease).
 *   **🛠️ Custom Utility Slots**: Two extra columns (`Custom 1`, `Custom 2`) to allocate variable fees like cleaner visits, aircon gas refilling, or shared household supplies.
 *   **📊 Integrated Daily Tracker**: Section 3 features an occupancy tracker where you simply enter **`1`** for each day an occupant is present (leave blank or enter `0` if absent). It automatically calculates days present and updates utility bill allocations in real time.
@@ -31,18 +31,24 @@ The sheet follows a clean, professional **Steel Blue** theme, utilizing clear vi
 
 ### 1. PUB Cost Share
 By default, the PUB column uses the **`By Days Present`** split method. The share for occupant $i$ is calculated day-by-day:
-$$\text{Daily Share}_d = \frac{\text{Total PUB Bill}}{\text{Billing Period Days} \times \text{Occupants Present on Day } d}$$
-$$\text{Occupant Share} = \sum_{d=1}^{N} (\text{Presence}_d \times \text{Daily Share}_d)$$
+
+*   **Days with occupants present ($\text{Occupants Present}_d > 0$)**:
+    $$\text{Daily Share}_d = \frac{\text{Total PUB Bill}}{\text{Billing Period Days} \times \text{Occupants Present on Day } d}$$
+    Present occupants pay $\text{Daily Share}_d$, while absent occupants pay $\$0.00$.
+
+*   **Days where no one is present ($\text{Occupants Present}_d = 0$)**:
+    $$\text{Daily Share}_d = \frac{\text{Total PUB Bill}}{\text{Billing Period Days} \times \text{Total Tenants}}$$
+    The daily bill for empty-house days is automatically split equally among **all** listed tenants.
 
 > [!NOTE]
-> If a tenant is away on holiday for 10 days, they do not pay for PUB on those 10 days. The vacancy cost for those empty-room days is not forced onto the remaining roommates. The **Reconciliation Status** in cell `C25` will display `❌ Unbalanced` to indicate the unallocated vacancy cost, which can be absorbed by the landlord or distributed manually.
+> If all housemates are away on vacation on a given day, the daily utility cost for that day is split evenly among all tenants. This ensures 100% of the bill is allocated fairly and the **Reconciliation Status** in cell `C25` displays `✔ Balanced`.
 
 ### 2. Internet cost split
 Defaulted to **`Split (Top 3)`**, which divides the internet bill by 3 and charges only the first 3 occupants listed in rows 13–15. Occupants from row 4 onwards pay `$0.00`.
 
 ### 3. General split methods (Custom 1 & 2)
 Choose from three calculations in Row 9:
-1.  **By Days Present**: Proportional daily allocation based on days in the house.
+1.  **By Days Present**: Proportional daily allocation based on days in the house (with empty-house days split equally among all tenants).
 2.  **Split Equally**: Cost is divided evenly among all listed roommates.
 3.  **Split (Top 3)**: Cost is divided by 3 and charged only to the first 3 roommates.
 
